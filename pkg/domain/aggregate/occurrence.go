@@ -84,7 +84,7 @@ func (o Occurrence) IsValid() error {
 	if err := o.totalDuration.IsValid(); err != nil {
 		return err
 	} else if o.activity.IsEmpty() {
-		return exceptions.ErrEmptyActivity
+		return exceptions.ErrEmptyActivityID
 	}
 
 	return nil
