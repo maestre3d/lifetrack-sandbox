@@ -36,25 +36,23 @@ func (h UpdateCommandHandler) Invoke(cmd UpdateCommand) error {
 		return exception.NewRequiredField("occurrence_id")
 	}
 
-	oc, err := h.repo.Fetch(cmd.Ctx, cmd.ID)
+	oc, _, err := h.repo.Fetch(cmd.Ctx, repository.OccurrenceCriteria{ID: cmd.ID})
 	if err != nil {
 		return err
 	}
 
-	if err := h.updater(cmd, oc); err != nil {
+	if err := h.updater(cmd, oc[0]); err != nil {
 		return err
 	}
 
 	// TODO: Add event bus, publish events to AWS SNS/SQS or EventBridge
-	return h.repo.Save(cmd.Ctx, *oc)
+	return h.repo.Save(cmd.Ctx, *oc[0])
 }
 
 // updater updates aggregate.Occurrence using strategies
 func (h UpdateCommandHandler) updater(cmd UpdateCommand, oc *aggregate.Occurrence) error {
 	if cmd.ActivityID != "" {
-		if err := oc.ChangeActivity(cmd.ActivityID); err != nil {
-			return err
-		}
+		return oc.ChangeActivity(cmd.ActivityID)
 	}
 
 	return oc.EditTimes(time.Unix(cmd.StartTime, 0), time.Unix(cmd.EndTime, 0))

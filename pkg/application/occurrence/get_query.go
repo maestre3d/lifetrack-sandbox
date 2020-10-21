@@ -19,10 +19,10 @@ func NewGetQuery(r repository.Occurrence) *GetQuery {
 
 // Query handles Get requests
 func (g GetQuery) Query(ctx context.Context, id string) (*model.Occurrence, error) {
-	oc, err := g.repo.Fetch(ctx, id)
+	oc, _, err := g.repo.Fetch(ctx, repository.OccurrenceCriteria{ID: id})
 	if err != nil {
 		return nil, err
 	}
 
-	return oc.MarshalPrimitive(), nil
+	return oc[0].MarshalPrimitive(), nil
 }
