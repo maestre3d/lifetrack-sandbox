@@ -7,15 +7,18 @@ import (
 	"github.com/maestre3d/lifetrack-sanbox/pkg/domain/repository"
 )
 
+// RemoveCommand requests a Occurrence removal
 type RemoveCommand struct {
 	Ctx context.Context
 	ID  string
 }
 
+// RemoveCommandHandler handles RemoveCommand(s)
 type RemoveCommandHandler struct {
 	repo repository.Occurrence
 }
 
+// NewRemoveCommandHandler creates a RemoveCommandHandler
 func NewRemoveCommandHandler(r repository.Occurrence) *RemoveCommandHandler {
 	return &RemoveCommandHandler{repo: r}
 }

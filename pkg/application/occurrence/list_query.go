@@ -8,10 +8,12 @@ import (
 	"github.com/maestre3d/lifetrack-sanbox/pkg/domain/repository"
 )
 
+// ListQuery requests a list of model.Occurrence
 type ListQuery struct {
 	repo repository.Occurrence
 }
 
+// NewListQuery creates a ListQuery
 func NewListQuery(r repository.Occurrence) *ListQuery {
 	return &ListQuery{repo: r}
 }
