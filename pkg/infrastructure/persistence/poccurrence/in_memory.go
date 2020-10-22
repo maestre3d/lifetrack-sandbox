@@ -14,8 +14,10 @@ var (
 	occurrenceInMemOnce = new(sync.Once)
 )
 
+type inMemoryDatabase map[string]*aggregate.Occurrence
+
 type OccurrenceInMemory struct {
-	db map[string]*aggregate.Occurrence
+	db inMemoryDatabase
 	mu *sync.RWMutex
 }
 
@@ -69,14 +71,14 @@ func (o *OccurrenceInMemory) Remove(_ context.Context, id string) error {
 }
 
 // setFetchStrategy chooses a fetching strategy depending on criteria values, if none returns nil
-func (o OccurrenceInMemory) setFetchStrategy(criteria repository.OccurrenceCriteria) FetchStrategy {
+func (o OccurrenceInMemory) setFetchStrategy(criteria repository.OccurrenceCriteria) fetchStrategy {
 	switch {
 	case criteria.ID != "":
-		return FetchIDInMemory{db: o.db}
+		return fetchIDInMemory{db: o.db}
 	case criteria.Activity != "":
-		return FetchActivityInMemory{db: o.db}
+		return fetchActivityInMemory{db: o.db}
 	case criteria.Limit > 0 || criteria.Token != "":
-		return FetchAllInMemory{db: o.db}
+		return fetchAllInMemory{db: o.db}
 	default:
 		return nil
 	}

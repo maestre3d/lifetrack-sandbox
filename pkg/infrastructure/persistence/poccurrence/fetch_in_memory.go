@@ -8,12 +8,12 @@ import (
 	"github.com/maestre3d/lifetrack-sanbox/pkg/domain/repository"
 )
 
-// FetchIDInMemory strategy when criteria contains an ID
-type FetchIDInMemory struct {
+// fetchIDInMemory strategy when criteria contains an ID
+type fetchIDInMemory struct {
 	db map[string]*aggregate.Occurrence
 }
 
-func (m FetchIDInMemory) Do(_ context.Context, criteria repository.OccurrenceCriteria) ([]*aggregate.Occurrence, string, error) {
+func (m fetchIDInMemory) Do(_ context.Context, criteria repository.OccurrenceCriteria) ([]*aggregate.Occurrence, string, error) {
 	oc := m.db[criteria.ID]
 	if oc == nil {
 		return nil, "", exceptions.ErrOccurrenceNotFound
@@ -22,12 +22,12 @@ func (m FetchIDInMemory) Do(_ context.Context, criteria repository.OccurrenceCri
 	return []*aggregate.Occurrence{oc}, "", nil
 }
 
-// FetchAllInMemory strategy when criteria contains a limit above 0 or a page token
-type FetchAllInMemory struct {
+// fetchAllInMemory strategy when criteria contains a limit above 0 or a page token
+type fetchAllInMemory struct {
 	db map[string]*aggregate.Occurrence
 }
 
-func (m FetchAllInMemory) Do(_ context.Context, criteria repository.OccurrenceCriteria) ([]*aggregate.Occurrence, string, error) {
+func (m fetchAllInMemory) Do(_ context.Context, criteria repository.OccurrenceCriteria) ([]*aggregate.Occurrence, string, error) {
 	totalRows := criteria.Limit
 	rows := make([]*aggregate.Occurrence, 0)
 	for _, oc := range m.db {
@@ -41,12 +41,12 @@ func (m FetchAllInMemory) Do(_ context.Context, criteria repository.OccurrenceCr
 	return rows, "", nil
 }
 
-// FetchActivityInMemory strategy when criteria contains an Activity ID
-type FetchActivityInMemory struct {
+// fetchActivityInMemory strategy when criteria contains an Activity ID
+type fetchActivityInMemory struct {
 	db map[string]*aggregate.Occurrence
 }
 
-func (m FetchActivityInMemory) Do(_ context.Context, criteria repository.OccurrenceCriteria) ([]*aggregate.Occurrence, string, error) {
+func (m fetchActivityInMemory) Do(_ context.Context, criteria repository.OccurrenceCriteria) ([]*aggregate.Occurrence, string, error) {
 	totalRows := criteria.Limit
 	rows := make([]*aggregate.Occurrence, 0)
 	for _, oc := range m.db {

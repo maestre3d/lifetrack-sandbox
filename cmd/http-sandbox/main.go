@@ -30,7 +30,7 @@ func main() {
 
 	id2, err := handler.Invoke(occurrence.CreateCommand{
 		Ctx:        context.Background(),
-		ActivityID: uuid.New().String(),
+		ActivityID: act1,
 		StartTime:  time.Now().Add(time.Minute * 15).Unix(),
 		EndTime:    time.Now().Add(time.Minute * 48).Unix(),
 	})

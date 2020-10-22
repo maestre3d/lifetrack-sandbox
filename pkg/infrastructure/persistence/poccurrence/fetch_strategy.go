@@ -7,7 +7,7 @@ import (
 	"github.com/maestre3d/lifetrack-sanbox/pkg/domain/repository"
 )
 
-// FetchStrategy fetching strategy for occurrence repositories
-type FetchStrategy interface {
+// fetchStrategy fetching strategy for occurrence repositories
+type fetchStrategy interface {
 	Do(ctx context.Context, criteria repository.OccurrenceCriteria) ([]*aggregate.Occurrence, string, error)
 }
