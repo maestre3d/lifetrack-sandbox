@@ -6,11 +6,11 @@ import (
 
 var (
 	//	ErrBelowMinDuration total duration is below 10 minutes
-	ErrBelowMinDuration = exception.NewFieldRange("total_duration", "10 minutes", "48 hours")
+	ErrBelowMinDuration = exception.NewFieldRange("total_duration", "5 minutes", "48 hours")
 	//	ErrAboveMaxDuration total duration is above 48 hours
-	ErrAboveMaxDuration = exception.NewFieldRange("total_duration", "10 minutes", "48 hours")
+	ErrAboveMaxDuration = exception.NewFieldRange("total_duration", "5 minutes", "48 hours")
 	//	ErrInvalidTotalDuration total duration has an invalid value
-	ErrInvalidTotalDuration = exception.NewFieldFormat("total_duration", "minutes (e.g. 10m)")
+	ErrInvalidTotalDuration = exception.NewFieldFormat("total_duration", "minutes (e.g. 5m)")
 	//	ErrEmptyActivityID empty activity id was given
 	ErrEmptyActivityID = exception.NewRequiredField("activity_id")
 	// ErrOccurrenceNotFound occurrence was not found
