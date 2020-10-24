@@ -22,7 +22,7 @@ func NewTitle(field, title string) (*Title, error) {
 	return t, nil
 }
 
-// NewImageFromPrimitive creates a Title without validating for marshaling purposes
+// NewTitleFromPrimitive creates a Title without validating for marshaling purposes
 func NewTitleFromPrimitive(field, title string) *Title {
 	t := &Title{
 		value: title,
@@ -56,7 +56,7 @@ func (t Title) IsValid() error {
 
 //	--	UTILS	--
 
-// setFieldName sanitizes the given field name, if field empty then sets "image" by default
+// setFieldName sanitizes the given field name, if field empty then sets "title" by default
 func (t Title) setFieldName(f string) {
 	if f == "" {
 		t.fieldName = "title"
