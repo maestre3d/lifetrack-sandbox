@@ -6,6 +6,7 @@ import (
 
 	"github.com/alexandria-oss/common-go/exception"
 	"github.com/maestre3d/lifetrack-sanbox/pkg/domain/aggregate"
+	"github.com/maestre3d/lifetrack-sanbox/pkg/domain/event"
 	"github.com/maestre3d/lifetrack-sanbox/pkg/domain/repository"
 )
 
@@ -23,11 +24,12 @@ type UpdateCommand struct {
 // UpdateCommandHandler handles UpdateCommand requests
 type UpdateCommandHandler struct {
 	repo repository.Occurrence
+	bus  event.Bus
 }
 
 // NewUpdateCommandHandler creates an UpdateCommandHandler
-func NewUpdateCommandHandler(r repository.Occurrence) *UpdateCommandHandler {
-	return &UpdateCommandHandler{repo: r}
+func NewUpdateCommandHandler(r repository.Occurrence, b event.Bus) *UpdateCommandHandler {
+	return &UpdateCommandHandler{repo: r, bus: b}
 }
 
 // Invoke handle an UpdateCommand request
@@ -40,20 +42,44 @@ func (h UpdateCommandHandler) Invoke(cmd UpdateCommand) error {
 	if err != nil {
 		return err
 	}
+	snapshot := *oc[0]
 
 	if err := h.updater(cmd, oc[0]); err != nil {
 		return err
 	}
 
-	// TODO: Add event bus, publish events to AWS SNS/SQS or EventBridge
-	return h.repo.Save(cmd.Ctx, *oc[0])
+	return h.persist(cmd.Ctx, oc[0], snapshot)
 }
 
 // updater updates aggregate.Occurrence using strategies
 func (h UpdateCommandHandler) updater(cmd UpdateCommand, oc *aggregate.Occurrence) error {
 	if cmd.ActivityID != "" {
-		return oc.ChangeActivity(cmd.ActivityID)
+		if err := oc.ChangeActivity(cmd.ActivityID); err != nil {
+			return err
+		}
 	}
 
 	return oc.EditTimes(time.Unix(cmd.StartTime, 0), time.Unix(cmd.EndTime, 0))
+}
+
+func (h UpdateCommandHandler) persist(ctx context.Context, oc *aggregate.Occurrence,
+	snapshot aggregate.Occurrence) error {
+	if err := h.repo.Save(ctx, *oc); err != nil {
+		return err
+	}
+
+	return h.pushEvents(ctx, oc, snapshot)
+}
+
+func (h UpdateCommandHandler) pushEvents(ctx context.Context, oc *aggregate.Occurrence,
+	snapshot aggregate.Occurrence) error {
+	if err := h.bus.Publish(ctx, oc.PullEvents()...); err != nil {
+		// rollback
+		if errR := h.repo.Save(ctx, snapshot); errR != nil {
+			return errR
+		}
+		return err
+	}
+
+	return nil
 }
