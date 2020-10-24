@@ -9,4 +9,9 @@ var (
 	ErrBelowTitleLength = exception.NewFieldRange("title", "2", "512")
 	// ErrActivityMarshaling problem occurred while activity marshaling
 	ErrActivityMarshaling = exception.NewFieldFormat("activity", "json")
+	// ErrActivityNotFound activity was not found
+	ErrActivityNotFound = exception.NewNotFound("activity")
+	// ErrInvalidActivityFilter activity fetch filter has no valid values
+	ErrInvalidActivityFilter = exception.NewFieldFormat("activity_filter", "activity__id, "+
+		"category_id, title, page_size, page_token")
 )
