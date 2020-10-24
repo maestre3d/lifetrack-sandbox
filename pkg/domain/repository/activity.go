@@ -9,7 +9,8 @@ import (
 // ActivityCriteria sets the Activity fetching strategy
 type ActivityCriteria struct {
 	ID       string
-	Activity string
+	Category string
+	Title    string
 	Limit    int64
 	Token    string
 }
