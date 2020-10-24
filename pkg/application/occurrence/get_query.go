@@ -18,8 +18,8 @@ func NewGetQuery(r repository.Occurrence) *GetQuery {
 }
 
 // Query handles Get requests
-func (g GetQuery) Query(ctx context.Context, id string) (*model.Occurrence, error) {
-	oc, _, err := g.repo.Fetch(ctx, repository.OccurrenceCriteria{ID: id})
+func (q GetQuery) Query(ctx context.Context, id string) (*model.Occurrence, error) {
+	oc, _, err := q.repo.Fetch(ctx, repository.OccurrenceCriteria{ID: id})
 	if err != nil {
 		return nil, err
 	}
