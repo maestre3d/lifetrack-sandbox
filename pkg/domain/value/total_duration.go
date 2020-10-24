@@ -7,10 +7,10 @@ import (
 )
 
 const (
-	// minDuration http-sandbox total duration minimum
-	minDuration = time.Minute * 10
-	// maxDuration http-sandbox total duration maximum
-	maxDuration = time.Hour * 48
+	// totalMinDuration occurrence total duration minimum
+	totalMinDuration = time.Minute * 5
+	// totalMaxDuration occurrence total duration maximum
+	totalMaxDuration = time.Hour * 48
 )
 
 // TotalDuration aggregate.Occurrence total time between start time and end time
@@ -42,11 +42,11 @@ func (d *TotalDuration) Calculate(startTime, endTime time.Time) {
 // IsValid validates the current Total Duration value
 func (d TotalDuration) IsValid() error {
 	// rule
-	//	a.	10 minutes as minimum total duration value; Dom. -> f(x) = start_time - end_time, f(x) >= 10 min.
-	//	b.	1 year as maximum duration value; Dom. -> f(x) start_time - end_time, f(x) <= 48 hours
-	if d.duration > maxDuration {
+	//	a.	5 minutes as minimum total duration value; Dom. -> f(x) = start_time - end_time, f(x) >= 5 min.
+	//	b.	48 hours as maximum duration value; Dom. -> f(x) start_time - end_time, f(x) <= 48 hours
+	if d.duration > totalMaxDuration {
 		return exceptions.ErrAboveMaxDuration
-	} else if d.duration < minDuration {
+	} else if d.duration < totalMinDuration {
 		return exceptions.ErrBelowMinDuration
 	}
 

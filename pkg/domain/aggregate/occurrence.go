@@ -80,8 +80,8 @@ func (o *Occurrence) EditTimes(startTime, endTime time.Time) error {
 // IsValid validates the current Occurrence values following domain rules
 func (o Occurrence) IsValid() error {
 	// rule
-	//	a.	10 minutes as minimum total duration value; Dom. -> f(x) = start_time - end_time, f(x) >= 10 min.
-	//	b.	1 year as maximum duration value; Dom. -> f(x) start_time - end_time, f(x) <= 48 hours
+	//	a.	5 minutes as minimum total duration value; Dom. -> f(x) = start_time - end_time, f(x) >= 5 min.
+	//	b.	48 hours as maximum duration value; Dom. -> f(x) start_time - end_time, f(x) <= 48 hours
 	//	c.	1 character as minimum activity value
 	if err := o.totalDuration.IsValid(); err != nil {
 		return err
