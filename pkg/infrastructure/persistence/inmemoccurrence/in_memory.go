@@ -1,4 +1,4 @@
-package dboccurrence
+package inmemoccurrence
 
 import (
 	"context"
