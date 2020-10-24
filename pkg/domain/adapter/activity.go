@@ -7,10 +7,10 @@ import (
 
 // BulkUnmarshalPrimitiveActivity parses given aggregate.Activity slice into a read model slice
 func BulkUnmarshalPrimitiveActivity(activities []*aggregate.Activity) []*model.Activity {
-	ocs := make([]*model.Activity, 0)
-	for _, oc := range activities {
-		ocs = append(ocs, oc.MarshalPrimitive())
+	acts := make([]*model.Activity, 0)
+	for _, ac := range activities {
+		acts = append(acts, ac.MarshalPrimitive())
 	}
 
-	return ocs
+	return acts
 }
