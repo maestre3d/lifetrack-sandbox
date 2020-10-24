@@ -2,9 +2,9 @@ package eventfactory
 
 // Default actions
 const (
-	create     = "create"
-	update     = "update"
-	remove     = "remove"
-	restore    = "restore"
-	hardRemove = "hard_remove"
+	create     = "created"
+	update     = "updated"
+	remove     = "removed"
+	restore    = "restored"
+	hardRemove = "hard_removed"
 )
