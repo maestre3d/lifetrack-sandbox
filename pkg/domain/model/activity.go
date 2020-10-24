@@ -1,6 +1,6 @@
 package model
 
-// Activity is the aggregate.Activity primitive model
+// Activity aggregate.Activity primitive model
 type Activity struct {
 	ID         string `json:"id"`
 	CategoryID string `json:"category_id"`
