@@ -60,7 +60,7 @@ func NewDomainEvent(args DomainArgs) *Domain {
 		Publisher: fmt.Sprintf("lifetrack.%s.%s", strings.ToLower(args.Caller),
 			strings.ToLower(args.AggregateName)),
 		Action: strings.ToLower(args.Action),
-		Topic: fmt.Sprintf("%s.%s.%s", strings.ToLower(args.Caller), strings.ToLower(args.AggregateName),
+		Topic: fmt.Sprintf("lifetrack.%s.%s.%s", strings.ToLower(args.Caller), strings.ToLower(args.AggregateName),
 			strings.ToLower(args.Action)),
 		PublishTime: time.Now().UTC().Unix(),
 		AggregateID: args.AggregateID,
@@ -89,7 +89,18 @@ func (d *Domain) UnmarshalBinary(data []byte) error {
 	return nil
 }
 
-// TopicUnderscored retrieves a topic name with underscore format
+// TopicSimplified retrieves a topic name without ecosystem name nor bounded context
+func (d Domain) TopicSimplified() string {
+	return strings.Join(strings.Split(d.Topic, ".")[2:], ".")
+}
+
+// TopicUnderscored retrieves a topic name with underscore format and uppercase
 func (d Domain) TopicUnderscored() string {
 	return strings.Replace(strings.ToUpper(d.Topic), ".", "_", -1)
+}
+
+// TopicUnderscoredSimplified retrieves an underscored and uppercase topic name without ecosystem name nor
+// bounded context
+func (d Domain) TopicUnderscoredSimplified() string {
+	return strings.Replace(strings.ToUpper(d.TopicSimplified()), ".", "_", -1)
 }
