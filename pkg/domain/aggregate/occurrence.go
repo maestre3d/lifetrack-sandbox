@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/google/uuid"
 	"github.com/maestre3d/lifetrack-sanbox/pkg/domain/event"
 	"github.com/maestre3d/lifetrack-sanbox/pkg/domain/eventfactory"
 	"github.com/maestre3d/lifetrack-sanbox/pkg/domain/exceptions"
@@ -16,7 +15,7 @@ import (
 // Occurrence is an event that happened inside each activity, this is a record which helps LifeTrack to keep metrics
 // in each activity
 type Occurrence struct {
-	id            string
+	id            *value.ID
 	activity      *value.Activity
 	startTime     time.Time
 	endTime       time.Time
@@ -30,13 +29,14 @@ type Occurrence struct {
 // NewOccurrence creates a new Occurrence
 func NewOccurrence(activityID string, start, end time.Time) (*Occurrence, error) {
 	oc := &Occurrence{
-		id:            uuid.New().String(),
+		id:            value.NewID(),
 		activity:      value.NewActivity(activityID),
 		startTime:     start.UTC(),
 		endTime:       end.UTC(),
 		totalDuration: new(value.TotalDuration),
 		createTime:    time.Now().UTC(),
 		updateTime:    time.Now().UTC(),
+		events:        make([]event.Domain, 0),
 	}
 	oc.totalDuration.Calculate(oc.startTime, oc.endTime)
 	if err := oc.IsValid(); err != nil {
@@ -51,8 +51,10 @@ func NewOccurrence(activityID string, start, end time.Time) (*Occurrence, error)
 
 // ChangeActivity reassigns occurrence to given activity
 func (o *Occurrence) ChangeActivity(activityID string) error {
+	memoized := o.activity.String()
 	o.activity.FromPrimitive(activityID)
 	if err := o.IsValid(); err != nil {
+		o.activity.FromPrimitive(memoized)
 		return err
 	}
 
@@ -106,13 +108,18 @@ func (o Occurrence) PullEvents() []event.Domain {
 
 // MarshalJSON parses the current Occurrence into a JSON binary
 func (o Occurrence) MarshalJSON() ([]byte, error) {
-	return json.Marshal(*o.MarshalPrimitive())
+	j, err := json.Marshal(*o.MarshalPrimitive())
+	if err != nil {
+		return nil, exceptions.ErrOccurrenceMarshaling
+	}
+
+	return j, nil
 }
 
 // MarshalPrimitive parses the current Occurrence into a primitive-only model
 func (o Occurrence) MarshalPrimitive() *model.Occurrence {
 	return &model.Occurrence{
-		ID:            o.id,
+		ID:            o.id.String(),
 		ActivityID:    o.activity.String(),
 		StartTime:     o.startTime.Unix(),
 		EndTime:       o.endTime.Unix(),
@@ -125,7 +132,7 @@ func (o Occurrence) MarshalPrimitive() *model.Occurrence {
 // UnmarshalPrimitive creates an Occurrence receiving primitive-only data
 //	This function is meant to be used to parse models from databases or any infrastructure storage
 func (o *Occurrence) UnmarshalPrimitive(primitive model.Occurrence) error {
-	o.id = primitive.ID
+	o.id = value.NewIDFromPrimitive(primitive.ID)
 	o.activity = value.NewActivity(primitive.ActivityID)
 	o.startTime = time.Unix(primitive.StartTime, 0)
 	o.endTime = time.Unix(primitive.EndTime, 0)
@@ -146,15 +153,15 @@ func (o *Occurrence) UnmarshalPrimitive(primitive model.Occurrence) error {
 
 // Getter(s)
 
-func (o Occurrence) ID() string { return o.id }
+func (o Occurrence) ID() string { return o.id.String() }
 
-func (o Occurrence) Activity() *value.Activity { return o.activity }
+func (o Occurrence) Activity() string { return o.activity.String() }
 
 func (o Occurrence) StartTime() time.Time { return o.startTime }
 
 func (o Occurrence) EndTime() time.Time { return o.endTime }
 
-func (o Occurrence) TotalDuration() *value.TotalDuration { return o.totalDuration }
+func (o Occurrence) TotalDuration() time.Duration { return o.totalDuration.Duration() }
 
 func (o Occurrence) CreateTime() time.Time { return o.createTime }
 
