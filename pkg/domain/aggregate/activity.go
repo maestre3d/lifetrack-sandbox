@@ -51,7 +51,7 @@ func NewActivity(categoryID, title string) (*Activity, error) {
 
 //	--	BUSINESS USE CASES	---
 
-// ChangeCategory changes the current Activity Category
+// ChangeCategory changes the current Category
 func (a *Activity) ChangeCategory(category string) error {
 	memoized := a.category.String()
 	a.category.FromPrimitive(category)
@@ -76,7 +76,7 @@ func (a *Activity) Rename(title string) error {
 	return nil
 }
 
-// UploadPicture changes the current Activity image
+// UploadPicture changes the current Activity picture
 func (a *Activity) UploadPicture(picture string) error {
 	if err := a.picture.Save(picture); err != nil {
 		return err
@@ -157,7 +157,7 @@ func (a *Activity) UnmarshalPrimitive(primitive model.Activity) error {
 	a.id = value.NewIDFromPrimitive(primitive.ID)
 	a.category = value.NewCategory(primitive.CategoryID)
 	a.title = value.NewTitleFromPrimitive("", primitive.Title)
-	a.picture = value.NewImageFromPrimitive("", primitive.Picture)
+	a.picture = value.NewImageFromPrimitive("picture", primitive.Picture)
 	a.createTime = time.Unix(primitive.CreateTime, 0)
 	a.updateTime = time.Unix(primitive.UpdateTime, 0)
 	a.active = primitive.Active
