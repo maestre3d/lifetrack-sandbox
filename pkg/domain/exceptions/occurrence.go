@@ -15,6 +15,8 @@ var (
 	ErrEmptyActivityID = exception.NewRequiredField("activity_id")
 	// ErrOccurrenceNotFound occurrence was not found
 	ErrOccurrenceNotFound = exception.NewNotFound("occurrence")
+	// ErrActivityMarshaling problem occurred while occurrence marshaling
+	ErrOccurrenceMarshaling = exception.NewFieldFormat("occurrence", "json")
 	// ErrInvalidOccurrenceFilter occurrence fetch filter has no valid values
 	ErrInvalidOccurrenceFilter = exception.NewFieldFormat("occurrence_filter", "occurrence__id, "+
 		"activity_id, page_size, page_token")
