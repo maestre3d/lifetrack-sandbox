@@ -29,17 +29,23 @@ type fetchAllInMemory struct {
 }
 
 func (m fetchAllInMemory) Do(_ context.Context, criteria repository.ActivityCriteria) ([]*aggregate.Activity, string, error) {
-	totalRows := criteria.Limit
 	rows := make([]*aggregate.Activity, 0)
+	nextToken := ""
 	for _, act := range m.db {
-		if totalRows == 0 {
+		if criteria.Limit == 0 {
+			nextToken = act.ID()
 			break
+		} else if criteria.Token != "" && criteria.Token == act.ID() {
+			criteria.Token = ""
 		}
-		rows = append(rows, act)
-		totalRows--
+
+		if criteria.Token == "" {
+			rows = append(rows, act)
+			criteria.Limit--
+		}
 	}
 
-	return rows, "", nil
+	return rows, nextToken, nil
 }
 
 // fetchTitleInMemory strategy when criteria contains a Category ID
@@ -48,18 +54,19 @@ type fetchTitleInMemory struct {
 }
 
 func (m fetchTitleInMemory) Do(_ context.Context, criteria repository.ActivityCriteria) ([]*aggregate.Activity, string, error) {
-	totalRows := criteria.Limit
 	rows := make([]*aggregate.Activity, 0)
+	nextToken := ""
 	for _, act := range m.db {
-		if totalRows == 0 {
+		if criteria.Limit == 0 {
+			nextToken = act.ID()
 			break
-		} else if strings.Contains(act.Title(), criteria.Title) {
+		} else if strings.Contains(strings.ToLower(act.Title()), strings.ToLower(criteria.Title)) {
 			rows = append(rows, act)
-			totalRows--
+			criteria.Limit--
 		}
 	}
 
-	return rows, "", nil
+	return rows, nextToken, nil
 }
 
 // fetchCategoryInMemory strategy when criteria contains a Category ID
@@ -68,16 +75,17 @@ type fetchCategoryInMemory struct {
 }
 
 func (m fetchCategoryInMemory) Do(_ context.Context, criteria repository.ActivityCriteria) ([]*aggregate.Activity, string, error) {
-	totalRows := criteria.Limit
 	rows := make([]*aggregate.Activity, 0)
+	nextToken := ""
 	for _, act := range m.db {
-		if totalRows == 0 {
+		if criteria.Limit == 0 {
+			nextToken = act.ID()
 			break
 		} else if act.Category() == criteria.Category {
 			rows = append(rows, act)
-			totalRows--
+			criteria.Limit--
 		}
 	}
 
-	return rows, "", nil
+	return rows, nextToken, nil
 }

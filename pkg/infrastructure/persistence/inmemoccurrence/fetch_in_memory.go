@@ -28,17 +28,18 @@ type fetchAllInMemory struct {
 }
 
 func (m fetchAllInMemory) Do(_ context.Context, criteria repository.OccurrenceCriteria) ([]*aggregate.Occurrence, string, error) {
-	totalRows := criteria.Limit
 	rows := make([]*aggregate.Occurrence, 0)
+	nextToken := ""
 	for _, oc := range m.db {
-		if totalRows == 0 {
+		if criteria.Limit == 0 {
+			nextToken = oc.ID()
 			break
 		}
 		rows = append(rows, oc)
-		totalRows--
+		criteria.Limit--
 	}
 
-	return rows, "", nil
+	return rows, nextToken, nil
 }
 
 // fetchActivityInMemory strategy when criteria contains an Activity ID
@@ -47,16 +48,17 @@ type fetchActivityInMemory struct {
 }
 
 func (m fetchActivityInMemory) Do(_ context.Context, criteria repository.OccurrenceCriteria) ([]*aggregate.Occurrence, string, error) {
-	totalRows := criteria.Limit
 	rows := make([]*aggregate.Occurrence, 0)
+	nextToken := ""
 	for _, oc := range m.db {
-		if totalRows == 0 {
+		if criteria.Limit == 0 {
+			nextToken = oc.ID()
 			break
 		} else if oc.Activity() == criteria.Activity {
 			rows = append(rows, oc)
-			totalRows--
+			criteria.Limit--
 		}
 	}
 
-	return rows, "", nil
+	return rows, nextToken, nil
 }
