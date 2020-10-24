@@ -35,45 +35,48 @@ func NewUpdateCommandHandler(r repository.Occurrence, b event.Bus) *UpdateComman
 // Invoke handle an UpdateCommand request
 func (h UpdateCommandHandler) Invoke(cmd UpdateCommand) error {
 	if cmd.ID == "" {
-		return exception.NewRequiredField("occurrence_id")
+		return exception.NewRequiredField("occurrencecurrence_id")
 	}
 
-	oc, _, err := h.repo.Fetch(cmd.Ctx, repository.OccurrenceCriteria{ID: cmd.ID})
+	occurrence, _, err := h.repo.Fetch(cmd.Ctx, repository.OccurrenceCriteria{ID: cmd.ID})
 	if err != nil {
 		return err
 	}
-	snapshot := *oc[0]
+	snapshot := *occurrence[0]
 
-	if err := h.updater(cmd, oc[0]); err != nil {
+	if err = h.updater(cmd, occurrence[0]); err != nil {
 		return err
 	}
 
-	return h.persist(cmd.Ctx, oc[0], snapshot)
+	return h.persist(cmd.Ctx, occurrence[0], snapshot)
 }
 
 // updater updates aggregate.Occurrence using strategies
-func (h UpdateCommandHandler) updater(cmd UpdateCommand, oc *aggregate.Occurrence) error {
+func (h UpdateCommandHandler) updater(cmd UpdateCommand, occurrence *aggregate.Occurrence) error {
+	isCmdEmpty := cmd.ActivityID == "" && cmd.StartTime == 0 && cmd.EndTime == 0
 	if cmd.ActivityID != "" {
-		if err := oc.ChangeActivity(cmd.ActivityID); err != nil {
+		if err := occurrence.ChangeActivity(cmd.ActivityID); err != nil {
 			return err
 		}
+	} else if isCmdEmpty {
+		return exception.NewRequiredField("activity_id or times (start_time, end_time)")
 	}
 
-	return oc.EditTimes(time.Unix(cmd.StartTime, 0), time.Unix(cmd.EndTime, 0))
+	return occurrence.EditTimes(time.Unix(cmd.StartTime, 0), time.Unix(cmd.EndTime, 0))
 }
 
-func (h UpdateCommandHandler) persist(ctx context.Context, oc *aggregate.Occurrence,
+func (h UpdateCommandHandler) persist(ctx context.Context, occurrence *aggregate.Occurrence,
 	snapshot aggregate.Occurrence) error {
-	if err := h.repo.Save(ctx, *oc); err != nil {
+	if err := h.repo.Save(ctx, *occurrence); err != nil {
 		return err
 	}
 
-	return h.pushEvents(ctx, oc, snapshot)
+	return h.pushEvents(ctx, occurrence, snapshot)
 }
 
-func (h UpdateCommandHandler) pushEvents(ctx context.Context, oc *aggregate.Occurrence,
+func (h UpdateCommandHandler) pushEvents(ctx context.Context, occurrence *aggregate.Occurrence,
 	snapshot aggregate.Occurrence) error {
-	if err := h.bus.Publish(ctx, oc.PullEvents()...); err != nil {
+	if err := h.bus.Publish(ctx, occurrence.PullEvents()...); err != nil {
 		// rollback
 		if errR := h.repo.Save(ctx, snapshot); errR != nil {
 			return errR

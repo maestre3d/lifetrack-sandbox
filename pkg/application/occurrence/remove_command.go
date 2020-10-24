@@ -10,7 +10,7 @@ import (
 	"github.com/maestre3d/lifetrack-sanbox/pkg/domain/repository"
 )
 
-// RemoveCommand requests a Occurrence removal
+// RemoveCommand requests a permanent removal of an aggregate.Occurrence
 type RemoveCommand struct {
 	Ctx context.Context
 	ID  string
@@ -36,22 +36,20 @@ func (h RemoveCommandHandler) Invoke(cmd RemoveCommand) error {
 
 func (h RemoveCommandHandler) persist(ctx context.Context, id string) error {
 	// required to verify entity exists and for rollback ops
-	ocs, _, err := h.repo.Fetch(ctx, repository.OccurrenceCriteria{ID: id})
+	snapshot, _, err := h.repo.Fetch(ctx, repository.OccurrenceCriteria{ID: id})
 	if err != nil {
 		return err
-	}
-
-	if err = h.repo.Remove(ctx, ocs[0].ID()); err != nil {
+	} else if err = h.repo.Remove(ctx, snapshot[0].ID()); err != nil {
 		return err
 	}
 
-	return h.pushEvents(ctx, ocs[0])
+	return h.pushEvents(ctx, snapshot[0])
 }
 
-func (h RemoveCommandHandler) pushEvents(ctx context.Context, oc *aggregate.Occurrence) error {
-	if err := h.bus.Publish(ctx, eventfactory.Occurrence{}.HardRemoved(oc.ID())); err != nil {
+func (h RemoveCommandHandler) pushEvents(ctx context.Context, snapshot *aggregate.Occurrence) error {
+	if err := h.bus.Publish(ctx, eventfactory.Occurrence{}.HardRemoved(snapshot.ID())); err != nil {
 		//  rollback
-		if errR := h.repo.Save(ctx, *oc); errR != nil {
+		if errR := h.repo.Save(ctx, *snapshot); errR != nil {
 			return errR
 		}
 		return err
