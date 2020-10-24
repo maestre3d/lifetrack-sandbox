@@ -27,6 +27,10 @@ type Filter struct {
 }
 
 func (q ListQuery) Query(ctx context.Context, filter Filter) ([]*model.Occurrence, string, error) {
+	if filter.Limit == 0 {
+		filter.Limit = 100
+	}
+
 	ocs, nextPage, err := q.repo.Fetch(ctx, repository.OccurrenceCriteria{
 		Activity: filter.ActivityID,
 		Limit:    filter.Limit,

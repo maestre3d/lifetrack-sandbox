@@ -29,6 +29,10 @@ func NewListQuery(r repository.Activity) *ListQuery {
 }
 
 func (q ListQuery) Query(ctx context.Context, filter Filter) ([]*model.Activity, string, error) {
+	if filter.Limit == 0 {
+		filter.Limit = 100
+	}
+
 	activities, nextToken, err := q.repo.Fetch(ctx, repository.ActivityCriteria{
 		Category: filter.CategoryID,
 		Title:    filter.Title,

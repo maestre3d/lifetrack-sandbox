@@ -39,9 +39,6 @@ func (o *InMemory) Save(_ context.Context, activity aggregate.Activity) error {
 func (o *InMemory) Fetch(ctx context.Context, criteria repository.ActivityCriteria) ([]*aggregate.Activity, string, error) {
 	o.mu.RLock()
 	defer o.mu.RUnlock()
-	if criteria.Limit == 0 {
-		criteria.Limit = 100
-	}
 
 	fetchStrategy := o.setFetchStrategy(criteria)
 	if fetchStrategy == nil {
