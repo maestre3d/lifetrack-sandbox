@@ -1,8 +1,6 @@
 package value
 
 import (
-	"strings"
-
 	"github.com/alexandria-oss/common-go/exception"
 )
 
@@ -36,7 +34,7 @@ func NewTitleFromPrimitive(field, title string) *Title {
 // Rename sets the current Title value
 func (t *Title) Rename(title string) error {
 	memoized := t.value
-	t.value = strings.Title(title)
+	t.value = title
 	if err := t.IsValid(); err != nil {
 		t.value = memoized
 		return err
