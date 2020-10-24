@@ -11,11 +11,11 @@ import (
 	"github.com/maestre3d/lifetrack-sanbox/pkg/application/occurrence"
 	"github.com/maestre3d/lifetrack-sanbox/pkg/infrastructure/configuration"
 	"github.com/maestre3d/lifetrack-sanbox/pkg/infrastructure/eventbus"
-	"github.com/maestre3d/lifetrack-sanbox/pkg/infrastructure/persistence/dboccurrence"
+	"github.com/maestre3d/lifetrack-sanbox/pkg/infrastructure/persistence/inmemoccurrence"
 )
 
 func main() {
-	repo := dboccurrence.NewInMemory()
+	repo := inmemoccurrence.NewInMemory()
 	eventBus := eventbus.NewInMemory(configuration.NewConfiguration())
 	wg := new(sync.WaitGroup)
 
