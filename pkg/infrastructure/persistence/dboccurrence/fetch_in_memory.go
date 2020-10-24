@@ -1,4 +1,4 @@
-package poccurrence
+package dboccurrence
 
 import (
 	"context"
@@ -52,7 +52,7 @@ func (m fetchActivityInMemory) Do(_ context.Context, criteria repository.Occurre
 	for _, oc := range m.db {
 		if totalRows == 0 {
 			break
-		} else if oc.Activity().String() == criteria.Activity {
+		} else if oc.Activity() == criteria.Activity {
 			rows = append(rows, oc)
 			totalRows--
 		}

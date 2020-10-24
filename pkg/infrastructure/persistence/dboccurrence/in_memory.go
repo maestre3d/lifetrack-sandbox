@@ -1,4 +1,4 @@
-package poccurrence
+package dboccurrence
 
 import (
 	"context"
@@ -10,28 +10,25 @@ import (
 )
 
 var (
-	occurrenceInMem     *OccurrenceInMemory
-	occurrenceInMemOnce = new(sync.Once)
+	inMemorySingleton *InMemory
+	inMemoryLock      = new(sync.Once)
 )
 
 type inMemoryDatabase map[string]*aggregate.Occurrence
 
-type OccurrenceInMemory struct {
+type InMemory struct {
 	db inMemoryDatabase
 	mu *sync.RWMutex
 }
 
-func NewOccurrenceInMemory() *OccurrenceInMemory {
-	// Singleton
-	occurrenceInMemOnce.Do(func() {
-		if occurrenceInMem == nil {
-			occurrenceInMem = &OccurrenceInMemory{db: map[string]*aggregate.Occurrence{}, mu: new(sync.RWMutex)}
-		}
+func NewInMemory() *InMemory {
+	inMemoryLock.Do(func() {
+		inMemorySingleton = &InMemory{db: map[string]*aggregate.Occurrence{}, mu: new(sync.RWMutex)}
 	})
-	return occurrenceInMem
+	return inMemorySingleton
 }
 
-func (o *OccurrenceInMemory) Save(_ context.Context, occurrence aggregate.Occurrence) error {
+func (o *InMemory) Save(_ context.Context, occurrence aggregate.Occurrence) error {
 	o.mu.Lock()
 	defer o.mu.Unlock()
 
@@ -39,7 +36,7 @@ func (o *OccurrenceInMemory) Save(_ context.Context, occurrence aggregate.Occurr
 	return nil
 }
 
-func (o *OccurrenceInMemory) Fetch(ctx context.Context, criteria repository.OccurrenceCriteria) ([]*aggregate.Occurrence, string, error) {
+func (o *InMemory) Fetch(ctx context.Context, criteria repository.OccurrenceCriteria) ([]*aggregate.Occurrence, string, error) {
 	o.mu.RLock()
 	defer o.mu.RUnlock()
 	if criteria.Limit == 0 {
@@ -58,7 +55,7 @@ func (o *OccurrenceInMemory) Fetch(ctx context.Context, criteria repository.Occu
 	return ocs, nextPage, err
 }
 
-func (o *OccurrenceInMemory) Remove(_ context.Context, id string) error {
+func (o *InMemory) Remove(_ context.Context, id string) error {
 	o.mu.Lock()
 	defer o.mu.Unlock()
 
@@ -71,7 +68,7 @@ func (o *OccurrenceInMemory) Remove(_ context.Context, id string) error {
 }
 
 // setFetchStrategy chooses a fetching strategy depending on criteria values, if none returns nil
-func (o OccurrenceInMemory) setFetchStrategy(criteria repository.OccurrenceCriteria) fetchStrategy {
+func (o InMemory) setFetchStrategy(criteria repository.OccurrenceCriteria) fetchStrategy {
 	switch {
 	case criteria.ID != "":
 		return fetchIDInMemory{db: o.db}
