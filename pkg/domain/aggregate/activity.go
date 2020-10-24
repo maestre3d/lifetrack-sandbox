@@ -75,20 +75,15 @@ func (a *Activity) Rename(title string) error {
 	return nil
 }
 
-// UpdatePicture changes the current Activity image
-func (a *Activity) UpdatePicture(image string) error {
+// UploadPicture changes the current Activity image
+func (a *Activity) UploadPicture(image string) error {
 	if a.image == nil {
-		i, err := value.NewImage("", image)
-		if err != nil {
-			return err
-		}
-		a.image = i
-	} else {
-		if err := a.image.Save(image); err != nil {
-			return err
-		}
+		a.image = new(value.Image)
 	}
 
+	if err := a.image.Save(image); err != nil {
+		return err
+	}
 	a.updateTime = time.Now().UTC()
 	a.RecordEvents(eventfactory.Activity{}.Updated(*a.MarshalPrimitive()))
 	return nil
