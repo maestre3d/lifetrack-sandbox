@@ -17,7 +17,7 @@ type Activity struct {
 	id         *value.ID
 	category   *value.Category
 	title      *value.Title
-	image      *value.Image
+	picture    *value.Image
 	createTime time.Time
 	updateTime time.Time
 	active     bool
@@ -36,7 +36,7 @@ func NewActivity(categoryID, title string) (*Activity, error) {
 		id:         value.NewID(),
 		category:   value.NewCategory(categoryID),
 		title:      titleV,
-		image:      &value.Image{},
+		picture:    value.NewImageFromPrimitive("picture", ""),
 		createTime: time.Now().UTC(),
 		updateTime: time.Now().UTC(),
 		active:     true,
@@ -77,8 +77,8 @@ func (a *Activity) Rename(title string) error {
 }
 
 // UploadPicture changes the current Activity image
-func (a *Activity) UploadPicture(image string) error {
-	if err := a.image.Save(image); err != nil {
+func (a *Activity) UploadPicture(picture string) error {
+	if err := a.picture.Save(picture); err != nil {
 		return err
 	}
 	a.updateTime = time.Now().UTC()
@@ -144,7 +144,7 @@ func (a Activity) MarshalPrimitive() *model.Activity {
 		ID:         a.id.String(),
 		CategoryID: a.category.String(),
 		Title:      a.title.String(),
-		Image:      a.image.String(),
+		Picture:    a.picture.String(),
 		CreateTime: a.createTime.Unix(),
 		UpdateTime: a.updateTime.Unix(),
 		Active:     a.active,
@@ -157,7 +157,7 @@ func (a *Activity) UnmarshalPrimitive(primitive model.Activity) error {
 	a.id = value.NewIDFromPrimitive(primitive.ID)
 	a.category = value.NewCategory(primitive.CategoryID)
 	a.title = value.NewTitleFromPrimitive("", primitive.Title)
-	a.image = value.NewImageFromPrimitive("", primitive.Image)
+	a.picture = value.NewImageFromPrimitive("", primitive.Picture)
 	a.createTime = time.Unix(primitive.CreateTime, 0)
 	a.updateTime = time.Unix(primitive.UpdateTime, 0)
 	a.active = primitive.Active
@@ -176,7 +176,7 @@ func (a Activity) Category() string { return a.category.String() }
 
 func (a Activity) Title() string { return a.title.String() }
 
-func (a Activity) Image() string { return a.image.String() }
+func (a Activity) Picture() string { return a.picture.String() }
 
 func (a Activity) CreateTime() time.Time { return a.createTime }
 

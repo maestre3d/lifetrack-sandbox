@@ -17,7 +17,7 @@ type UpdateCommand struct {
 
 	CategoryID string
 	Title      string
-	Image      string
+	Picture    string
 
 	State string
 }
@@ -37,7 +37,7 @@ func NewUpdateCommandHandler(r repository.Activity, b event.Bus) *UpdateCommandH
 }
 
 func (h UpdateCommandHandler) Invoke(cmd UpdateCommand) error {
-	isCmdEmpty := cmd.Title == "" && cmd.Image == "" && cmd.State == "" && cmd.CategoryID == ""
+	isCmdEmpty := cmd.Title == "" && cmd.Picture == "" && cmd.State == "" && cmd.CategoryID == ""
 	if cmd.ID == "" {
 		return exception.NewRequiredField("activity_id")
 	} else if isCmdEmpty {
@@ -69,8 +69,8 @@ func (h UpdateCommandHandler) updater(cmd UpdateCommand, activity *aggregate.Act
 			return err
 		}
 	}
-	if cmd.Image != "" {
-		if err := activity.UploadPicture(cmd.Image); err != nil {
+	if cmd.Picture != "" {
+		if err := activity.UploadPicture(cmd.Picture); err != nil {
 			return err
 		}
 	}
