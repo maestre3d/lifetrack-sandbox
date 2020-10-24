@@ -36,6 +36,7 @@ func NewActivity(categoryID, title string) (*Activity, error) {
 		id:         value.NewID(),
 		category:   value.NewCategory(categoryID),
 		title:      titleV,
+		image:      &value.Image{},
 		createTime: time.Now().UTC(),
 		updateTime: time.Now().UTC(),
 		active:     true,
@@ -77,10 +78,6 @@ func (a *Activity) Rename(title string) error {
 
 // UploadPicture changes the current Activity image
 func (a *Activity) UploadPicture(image string) error {
-	if a.image == nil {
-		a.image = new(value.Image)
-	}
-
 	if err := a.image.Save(image); err != nil {
 		return err
 	}
