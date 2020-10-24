@@ -1,6 +1,10 @@
 package event
 
-import "encoding/json"
+import (
+	"encoding/json"
+
+	"github.com/alexandria-oss/common-go/exception"
+)
 
 // Domain is an action that has happened inside the ecosystem business contexts
 type Domain struct {
@@ -15,10 +19,19 @@ type Domain struct {
 
 // MarshalBinary parses current Domain event into a JSON binary
 func (d Domain) MarshalBinary() ([]byte, error) {
-	return json.Marshal(d)
+	j, err := json.Marshal(d)
+	if err != nil {
+		return nil, exception.NewFieldFormat("event", "json")
+	}
+
+	return j, nil
 }
 
 // UnmarshalBinary parses JSON binary into the current Domain event
 func (d *Domain) UnmarshalBinary(data []byte) error {
-	return json.Unmarshal(data, d)
+	if err := json.Unmarshal(data, d); err != nil {
+		return exception.NewFieldFormat("event", "valid event")
+	}
+
+	return nil
 }
