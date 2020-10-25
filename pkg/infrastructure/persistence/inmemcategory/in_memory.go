@@ -28,11 +28,11 @@ func NewInMemory() *InMemory {
 	return inMemorySingleton
 }
 
-func (r *InMemory) Save(_ context.Context, Category aggregate.Category) error {
+func (r *InMemory) Save(_ context.Context, category aggregate.Category) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 
-	r.db[Category.ID()] = &Category
+	r.db[category.ID()] = &category
 	return nil
 }
 
