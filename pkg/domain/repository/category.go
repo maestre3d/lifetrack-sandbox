@@ -19,7 +19,7 @@ type CategoryCriteria struct {
 
 // Category handles aggregate.Category persistence
 type Category interface {
-	Save(ctx context.Context, activity aggregate.Category) error
+	Save(ctx context.Context, category aggregate.Category) error
 	Fetch(ctx context.Context, criteria CategoryCriteria) ([]*aggregate.Category, string, error)
 	Remove(ctx context.Context, id string) error
 }
