@@ -4,7 +4,7 @@ import (
 	"context"
 	"sync"
 
-	"github.com/maestre3d/lifetrack-sanbox/pkg/domain/model"
+	"github.com/maestre3d/lifetrack-sanbox/pkg/infrastructure/configuration"
 
 	"github.com/asaskevich/EventBus"
 	"github.com/maestre3d/lifetrack-sanbox/pkg/domain/event"
@@ -18,12 +18,12 @@ var (
 // InMemory event.Bus in memory concrete implementation
 type InMemory struct {
 	bus EventBus.Bus
-	cfg model.Configuration
+	cfg configuration.Configuration
 	mu  *sync.Mutex
 }
 
 // NewInMemory creates a new InMemory bus
-func NewInMemory(c model.Configuration) *InMemory {
+func NewInMemory(c configuration.Configuration) *InMemory {
 	inMemoryLock.Do(func() {
 		inMemorySingleton = &InMemory{bus: EventBus.New(), cfg: c, mu: new(sync.Mutex)}
 	})
