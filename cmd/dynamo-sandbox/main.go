@@ -5,12 +5,11 @@ import (
 	"log"
 	"time"
 
-	"github.com/maestre3d/lifetrack-sanbox/pkg/infrastructure/persistence/dbpool"
-
 	"github.com/alexandria-oss/common-go/exception"
 	"github.com/maestre3d/lifetrack-sanbox/pkg/application/category"
 	"github.com/maestre3d/lifetrack-sanbox/pkg/infrastructure/configuration"
 	"github.com/maestre3d/lifetrack-sanbox/pkg/infrastructure/eventbus"
+	"github.com/maestre3d/lifetrack-sanbox/pkg/infrastructure/persistence/dbpool"
 	"github.com/maestre3d/lifetrack-sanbox/pkg/infrastructure/persistence/dynamocategory"
 )
 
