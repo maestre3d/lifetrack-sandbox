@@ -41,7 +41,7 @@ func (h UpdateCommandHandler) Invoke(cmd UpdateCommand) error {
 	if cmd.ID == "" {
 		return exception.NewRequiredField("activity_id")
 	} else if isCmdEmpty {
-		return exception.NewRequiredField("title, image, state or category_id")
+		return exception.NewRequiredField("title, picture, state or category_id")
 	}
 
 	activity, _, err := h.repo.Fetch(cmd.Ctx, repository.ActivityCriteria{ID: cmd.ID})
