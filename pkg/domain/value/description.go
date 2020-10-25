@@ -57,7 +57,7 @@ func (d Description) IsValid() error {
 //	--	UTILS	--
 
 // setFieldName sanitizes the given field name, if field empty then sets "description" by default
-func (d Description) setFieldName(f string) {
+func (d *Description) setFieldName(f string) {
 	if f == "" {
 		d.fieldName = "description"
 		return

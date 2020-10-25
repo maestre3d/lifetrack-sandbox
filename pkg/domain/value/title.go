@@ -57,7 +57,7 @@ func (t Title) IsValid() error {
 //	--	UTILS	--
 
 // setFieldName sanitizes the given field name, if field empty then sets "title" by default
-func (t Title) setFieldName(f string) {
+func (t *Title) setFieldName(f string) {
 	if f == "" {
 		t.fieldName = "title"
 		return
