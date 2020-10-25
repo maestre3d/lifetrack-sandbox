@@ -39,7 +39,7 @@ func (m fetchAllInMemory) Do(_ context.Context, criteria repository.ActivityCrit
 			criteria.Token = ""
 		}
 
-		if criteria.Token == "" {
+		if criteria.Token == "" && act.State() {
 			rows = append(rows, act)
 			criteria.Limit--
 		}
@@ -60,7 +60,8 @@ func (m fetchTitleInMemory) Do(_ context.Context, criteria repository.ActivityCr
 		if criteria.Limit == 0 {
 			nextToken = act.ID()
 			break
-		} else if strings.Contains(strings.ToLower(act.Title()), strings.ToLower(criteria.Title)) {
+		} else if strings.Contains(strings.ToLower(act.Title()), strings.ToLower(criteria.Title)) &&
+			act.State() {
 			rows = append(rows, act)
 			criteria.Limit--
 		}
@@ -81,7 +82,7 @@ func (m fetchCategoryInMemory) Do(_ context.Context, criteria repository.Activit
 		if criteria.Limit == 0 {
 			nextToken = act.ID()
 			break
-		} else if act.Category() == criteria.Category {
+		} else if act.Category() == criteria.Category && act.State() {
 			rows = append(rows, act)
 			criteria.Limit--
 		}
