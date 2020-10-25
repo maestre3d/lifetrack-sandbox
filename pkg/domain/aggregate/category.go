@@ -83,7 +83,9 @@ func (c *Category) Rename(name string) error {
 
 // ModifyDescription update the current Category description
 func (c *Category) ModifyDescription(description string) error {
-	if err := c.description.Change(description); err != nil {
+	if description == "none" {
+		c.description = value.NewDescriptionFromPrimitive("", "")
+	} else if err := c.description.Change(description); err != nil {
 		return err
 	} else if err := c.IsValid(); err != nil {
 		return err
@@ -95,12 +97,17 @@ func (c *Category) ModifyDescription(description string) error {
 
 // UpdateTargetTime set a new target time to the current Category
 func (c *Category) UpdateTargetTime(targetTime int64) error {
-	targetTimeV, err := time.ParseDuration(strconv.FormatInt(targetTime, 10) + "m")
-	if err != nil {
-		return exceptions.ErrInvalidTargetTime
-	} else if err = c.targetTime.SetTarget(targetTimeV); err != nil {
-		return err
+	if targetTime == -1 {
+		c.targetTime = value.NewTargetTimeFromPrimitive(0)
+	} else {
+		targetTimeV, err := time.ParseDuration(strconv.FormatInt(targetTime, 10) + "m")
+		if err != nil {
+			return exceptions.ErrInvalidTargetTime
+		} else if err = c.targetTime.SetTarget(targetTimeV); err != nil {
+			return err
+		}
 	}
+
 	c.updateTime = time.Now().UTC()
 	c.RecordEvents(eventfactory.Category{}.Updated(*c.MarshalPrimitive()))
 	return nil
@@ -108,7 +115,9 @@ func (c *Category) UpdateTargetTime(targetTime int64) error {
 
 // UploadPicture changes the current Category picture
 func (c *Category) UploadPicture(picture string) error {
-	if err := c.picture.Save(picture); err != nil {
+	if picture == "none" {
+		c.picture = value.NewImageFromPrimitive("picture", "")
+	} else if err := c.picture.Save(picture); err != nil {
 		return err
 	}
 	c.updateTime = time.Now().UTC()

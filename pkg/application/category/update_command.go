@@ -60,35 +60,35 @@ func (h UpdateCommandHandler) Invoke(cmd UpdateCommand) error {
 	return h.persist(cmd.Ctx, category[0], snapshot)
 }
 
-func (h UpdateCommandHandler) updater(cmd UpdateCommand, Category *aggregate.Category) error {
+func (h UpdateCommandHandler) updater(cmd UpdateCommand, category *aggregate.Category) error {
 	// update each field
 	if cmd.UserID != "" {
-		if err := Category.ChangeUser(cmd.UserID); err != nil {
+		if err := category.ChangeUser(cmd.UserID); err != nil {
 			return err
 		}
 	}
 	if cmd.Name != "" {
-		if err := Category.Rename(cmd.Name); err != nil {
+		if err := category.Rename(cmd.Name); err != nil {
 			return err
 		}
 	}
 	if cmd.Description != "" {
-		if err := Category.ModifyDescription(cmd.Description); err != nil {
+		if err := category.ModifyDescription(cmd.Description); err != nil {
 			return err
 		}
 	}
-	if cmd.TargetTime > 0 {
-		if err := Category.UpdateTargetTime(cmd.TargetTime); err != nil {
+	if cmd.TargetTime > 0 || cmd.TargetTime == -1 {
+		if err := category.UpdateTargetTime(cmd.TargetTime); err != nil {
 			return err
 		}
 	}
 	if cmd.Picture != "" {
-		if err := Category.UploadPicture(cmd.Picture); err != nil {
+		if err := category.UploadPicture(cmd.Picture); err != nil {
 			return err
 		}
 	}
 	if cmd.State != "" {
-		if err := h.updateState(cmd.State, Category); err != nil {
+		if err := h.updateState(cmd.State, category); err != nil {
 			return err
 		}
 	}

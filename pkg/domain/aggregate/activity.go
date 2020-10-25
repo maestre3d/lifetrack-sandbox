@@ -78,7 +78,9 @@ func (a *Activity) Rename(title string) error {
 
 // UploadPicture changes the current Activity picture
 func (a *Activity) UploadPicture(picture string) error {
-	if err := a.picture.Save(picture); err != nil {
+	if picture == "none" {
+		a.picture = value.NewImageFromPrimitive("picture", "")
+	} else if err := a.picture.Save(picture); err != nil {
 		return err
 	}
 	a.updateTime = time.Now().UTC()
