@@ -36,7 +36,7 @@ func NewImageFromPrimitive(field, image string) *Image {
 }
 
 // Save stores the given image URL
-func (i Image) Save(image string) error {
+func (i *Image) Save(image string) error {
 	memoized := i.value
 	i.value = image
 	if err := i.IsValid(); err != nil {
@@ -73,7 +73,7 @@ func (i Image) IsValid() error {
 //	--	UTILS	--
 
 // setFieldName sanitizes the given field name, if field empty then sets "image" by default
-func (i Image) setFieldName(f string) {
+func (i *Image) setFieldName(f string) {
 	if f == "" {
 		i.fieldName = "image"
 		return
