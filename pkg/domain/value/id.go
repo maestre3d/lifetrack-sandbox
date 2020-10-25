@@ -1,8 +1,7 @@
 package value
 
 import (
-	"github.com/alexandria-oss/common-go/exception"
-	"github.com/google/uuid"
+	gonanoid "github.com/matoous/go-nanoid"
 )
 
 // ID unique identifier
@@ -36,14 +35,16 @@ func (i *ID) Change(id string) error {
 
 // Generate generates and assigns a new unique identifier
 func (i *ID) Generate() {
-	i.value = uuid.New().String()
+	id, _ := gonanoid.Nanoid()
+	i.value = id
 }
 
 // IsValid validates the current ID value(s)
 func (i ID) IsValid() error {
-	if _, err := uuid.Parse(i.value); err != nil {
-		return exception.NewFieldFormat("id", "uuid v4")
-	}
+	/*
+		if _, err := uuid.Parse(i.value); err != nil {
+			return exception.NewFieldFormat("id", "uuid v4")
+		}*/
 
 	return nil
 }
