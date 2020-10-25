@@ -28,52 +28,45 @@ func NewInMemory() *InMemory {
 	return inMemorySingleton
 }
 
-func (o *InMemory) Save(_ context.Context, occurrence aggregate.Occurrence) error {
-	o.mu.Lock()
-	defer o.mu.Unlock()
+func (r *InMemory) Save(_ context.Context, occurrence aggregate.Occurrence) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
-	o.db[occurrence.ID()] = &occurrence
+	r.db[occurrence.ID()] = &occurrence
 	return nil
 }
 
-func (o *InMemory) Fetch(ctx context.Context, criteria repository.OccurrenceCriteria) ([]*aggregate.Occurrence, string, error) {
-	o.mu.RLock()
-	defer o.mu.RUnlock()
+func (r *InMemory) Fetch(ctx context.Context, criteria repository.OccurrenceCriteria) ([]*aggregate.Occurrence, string, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 
-	fetchStrategy := o.setFetchStrategy(criteria)
-	if fetchStrategy == nil {
-		return nil, "", exceptions.ErrInvalidOccurrenceFilter
-	}
-
-	ocs, nextPage, err := fetchStrategy.Do(ctx, criteria)
+	ocs, nextPage, err := r.setFetchStrategy(criteria).Do(ctx, criteria)
 	if len(ocs) == 0 && err == nil {
 		return nil, "", exceptions.ErrOccurrenceNotFound
 	}
 	return ocs, nextPage, err
 }
 
-func (o *InMemory) Remove(_ context.Context, id string) error {
-	o.mu.Lock()
-	defer o.mu.Unlock()
+func (r *InMemory) Remove(_ context.Context, id string) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
-	if o.db[id] == nil {
+	if r.db[id] == nil {
 		return exceptions.ErrOccurrenceNotFound
 	}
 
-	delete(o.db, id)
+	delete(r.db, id)
 	return nil
 }
 
 // setFetchStrategy chooses a fetching strategy depending on criteria values, if none returns nil
-func (o InMemory) setFetchStrategy(criteria repository.OccurrenceCriteria) fetchStrategy {
+func (r InMemory) setFetchStrategy(criteria repository.OccurrenceCriteria) fetchStrategy {
 	switch {
 	case criteria.ID != "":
-		return fetchIDInMemory{db: o.db}
+		return fetchIDInMemory{db: r.db}
 	case criteria.Activity != "":
-		return fetchActivityInMemory{db: o.db}
-	case criteria.Limit > 0 || criteria.Token != "":
-		return fetchAllInMemory{db: o.db}
+		return fetchActivityInMemory{db: r.db}
 	default:
-		return nil
+		return fetchAllInMemory{db: r.db}
 	}
 }

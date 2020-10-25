@@ -28,54 +28,47 @@ func NewInMemory() *InMemory {
 	return inMemorySingleton
 }
 
-func (o *InMemory) Save(_ context.Context, activity aggregate.Activity) error {
-	o.mu.Lock()
-	defer o.mu.Unlock()
+func (r *InMemory) Save(_ context.Context, activity aggregate.Activity) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
-	o.db[activity.ID()] = &activity
+	r.db[activity.ID()] = &activity
 	return nil
 }
 
-func (o *InMemory) Fetch(ctx context.Context, criteria repository.ActivityCriteria) ([]*aggregate.Activity, string, error) {
-	o.mu.RLock()
-	defer o.mu.RUnlock()
+func (r *InMemory) Fetch(ctx context.Context, criteria repository.ActivityCriteria) ([]*aggregate.Activity, string, error) {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
 
-	fetchStrategy := o.setFetchStrategy(criteria)
-	if fetchStrategy == nil {
-		return nil, "", exceptions.ErrInvalidActivityFilter
-	}
-
-	ocs, nextPage, err := fetchStrategy.Do(ctx, criteria)
-	if len(ocs) == 0 && err == nil {
+	acts, nextPage, err := r.setFetchStrategy(criteria).Do(ctx, criteria)
+	if len(acts) == 0 && err == nil {
 		return nil, "", exceptions.ErrActivityNotFound
 	}
-	return ocs, nextPage, err
+	return acts, nextPage, err
 }
 
-func (o *InMemory) Remove(_ context.Context, id string) error {
-	o.mu.Lock()
-	defer o.mu.Unlock()
+func (r *InMemory) Remove(_ context.Context, id string) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
 
-	if o.db[id] == nil {
+	if r.db[id] == nil {
 		return exceptions.ErrActivityNotFound
 	}
 
-	delete(o.db, id)
+	delete(r.db, id)
 	return nil
 }
 
 // setFetchStrategy chooses a fetching strategy depending on criteria values, if none returns nil
-func (o InMemory) setFetchStrategy(criteria repository.ActivityCriteria) fetchStrategy {
+func (r InMemory) setFetchStrategy(criteria repository.ActivityCriteria) fetchStrategy {
 	switch {
 	case criteria.ID != "":
-		return fetchIDInMemory{db: o.db}
+		return fetchIDInMemory{db: r.db}
 	case criteria.Title != "":
-		return fetchTitleInMemory{db: o.db}
+		return fetchTitleInMemory{db: r.db}
 	case criteria.Category != "":
-		return fetchCategoryInMemory{db: o.db}
-	case criteria.Limit > 0 || criteria.Token != "":
-		return fetchAllInMemory{db: o.db}
+		return fetchCategoryInMemory{db: r.db}
 	default:
-		return nil
+		return fetchAllInMemory{db: r.db}
 	}
 }

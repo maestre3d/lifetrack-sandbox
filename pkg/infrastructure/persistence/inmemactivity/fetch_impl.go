@@ -48,7 +48,7 @@ func (m fetchAllInMemory) Do(_ context.Context, criteria repository.ActivityCrit
 	return rows, nextToken, nil
 }
 
-// fetchTitleInMemory strategy when criteria contains a Category ID
+// fetchTitleInMemory strategy when criteria contains a title
 type fetchTitleInMemory struct {
 	db map[string]*aggregate.Activity
 }
